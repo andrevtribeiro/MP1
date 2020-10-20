@@ -15,3 +15,7 @@ for line in lines:
 
 dev_questions.writelines(questions)
 dev_labels.writelines(labels)
+
+dev.close()
+dev_questions.close()
+dev_labels.close()
