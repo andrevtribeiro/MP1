@@ -7,7 +7,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 from nltk.tokenize import sent_tokenize
 import math
-
+from multiprocessing import Pool
 
 train={}
 dev_questions = []
@@ -113,52 +113,41 @@ def med(dev_question,train_question):
     return matrix[lenTrain][lenDev]
 
     
-
-
+def med_question(dev_question):
+    maximo=[-1,{}]
+    for label in train.keys():
+        for train_question in train[label]:
+            new_max=med(dev_question,train_question)
+            if maximo[1]=={} or maximo[0]<new_max:
+                maximo[0]=new_max
+                maximo[1]={label:1}
+            elif maximo[0]==new_max:
+                if label not in maximo[1]:
+                    maximo[1][label]=0
+                maximo[1][label]+=1  
+    maxi=[-1,""]
+    for label in maximo[1].keys(): 
+        if maxi[1]=="" or maximo[1][label]>maxi[0]:
+            maxi[0]=maximo[1][label]
+            maxi[1]=label
+    return maxi[1]
+    
 def coarse_model():
     global dev_questions, train
     output=""
-    for dev_question in dev_questions:
-        maximo=[-1,{}]
-        for label in train.keys():
-            for train_question in train[label]:
-                new_max=med(dev_question,train_question)
-                if maximo[1]=={} or maximo[0]<new_max:
-                    maximo[0]=new_max
-                    maximo[1]={label:1}
-                elif maximo[0]==new_max:
-                    if label not in maximo[1]:
-                        maximo[1][label]=0
-                    maximo[1][label]+=1  
-        maxi=[-1,""]
-        for label in maximo[1].keys(): 
-            if maxi[1]=="" or maximo[1][label]>maxi[0]:
-                maxi[0]=maximo[1][label]
-                maxi[1]=label
-        output+=maxi[1]
+    pool=Pool()
+    results=pool.map(med_question,dev_questions)
+    for result in results:
+        output+=result  
     print(output)
 
 def fine_model():
     global dev_questions, train
     output=""
-    for dev_question in dev_questions:
-        maximo=[-1,{}]
-        for label in train.keys():
-            for train_question in train[label]:
-                new_max=med(dev_question,train_question)
-                if maximo[1]=={} or maximo[0]<new_max:
-                    maximo[0]=new_max
-                    maximo[1]={label:1}
-                elif maximo[0]==new_max:
-                    if label not in maximo[1]:
-                        maximo[1][label]=0
-                    maximo[1][label]+=1  
-        maxi=[-1,""]
-        for label in maximo[1].keys(): 
-            if maxi[1]=="" or maximo[1][label]>maxi[0]:
-                maxi[0]=maximo[1][label]
-                maxi[1]=label
-        output+=maxi[1]
+    pool=Pool()
+    results=pool.map(med_question,dev_questions)
+    for result in results:
+        output+=result  
     print(output)
 
 def main(argv):
