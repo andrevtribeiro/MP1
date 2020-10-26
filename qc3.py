@@ -13,6 +13,9 @@ train={}
 dev_questions = []
 
 important_words= set()
+
+weights_med=[-1,1,1]
+
 def divideTrain(train_file,coarse):
     global train
     f=open(train_file,"r")
@@ -84,7 +87,7 @@ def tfIdf():
               
   
 def med(dev_question,train_question):
-    global important_words
+    global important_words, weights_med
     lenDev=len(dev_question)
     lenTrain=len(train_question)
 
@@ -98,11 +101,11 @@ def med(dev_question,train_question):
         i=1
         while i!=lenTrain+1:
             if train_question[i-1]==dev_question[j-1]:
-                matrix[i][j]=matrix[i-1][j-1]+2
+                matrix[i][j]=matrix[i-1][j-1]+ weights_med[1]
                 if train_question[i-1] in important_words:
-                    matrix[i][j]+=3
+                    matrix[i][j]+= weights_med[2]
             else:
-                matrix[i][j]=max(matrix[i-1][j],matrix[i][j-1],matrix[i-1][j-1])-1
+                matrix[i][j]=max(matrix[i-1][j],matrix[i][j-1],matrix[i-1][j-1])+ weights_med[0]
             i+=1
         j+=1
     return matrix[lenTrain][lenDev]
@@ -129,7 +132,8 @@ def med_question(dev_question):
     return maxi[1]
     
 def coarse_model():
-    global dev_questions, train
+    global dev_questions, train, weights_med
+    weights_med=[-1,2,5]
     output=""
     pool=Pool()
     results=pool.map(med_question,dev_questions)
@@ -138,7 +142,8 @@ def coarse_model():
     print(output)
 
 def fine_model():
-    global dev_questions, train
+    global dev_questions, train, weights_med
+    weights_med=[-2,3,5]
     output=""
     pool=Pool()
     results=pool.map(med_question,dev_questions)
