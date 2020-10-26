@@ -38,7 +38,7 @@ def preProcessingQuestions():
     global train, dev_questions
     stop_words = set(stopwords.words('english'))
     stop_words.add('?')
-    stop_words.add(',')
+    stop_words.add(',') 
     ps = PorterStemmer()
     for label in train.keys():
         filtered_questions=[]
@@ -81,13 +81,8 @@ def tfIdf():
         tfdic[label] = sorted(tfdic[label].items(), key=lambda x: x[1], reverse=True)[:10]
         for tuplo in tfdic[label]:
             important_words.add(tuplo[0])
-
-
-
-                
-
-
-    
+              
+  
 def med(dev_question,train_question):
     global important_words
     lenDev=len(dev_question)
@@ -114,6 +109,7 @@ def med(dev_question,train_question):
 
     
 def med_question(dev_question):
+    global train
     maximo=[-1,{}]
     for label in train.keys():
         for train_question in train[label]:
